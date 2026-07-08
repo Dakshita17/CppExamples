@@ -1,0 +1,132 @@
+// String implementation with Rule of 5
+#include<iostream>
+
+
+class String{
+    private: 
+        char* data;
+        int size;
+        int capacity;
+
+    public:
+        String(int size);
+        ~String();
+        String(const String& s);
+        String& operator=(const String& s);
+        String(String&& s);
+        String& operator=(String&& s);
+    
+};
+
+String::String(int s){
+   int DEFAULT_CAPACITY = 10;
+
+   if(s < DEFAULT_CAPACITY)
+   {
+        data = new char[DEFAULT_CAPACITY];
+        capacity = DEFAULT_CAPACITY;
+        
+
+   }
+   else
+   {
+        data = new char[s];
+        capacity = s;
+   }
+
+   data[0] = '\0';
+   size = 0;
+
+}
+
+
+String:: ~String(){
+    delete[] data;
+    capacity = 0;
+    size = 0;
+
+}
+
+String:: String(const String& s):
+    data(new char[s.capacity]),
+    size(s.size),
+    capacity(s.capacity)
+{
+    // String s1 = s2 OR String s1(s2);
+    int end = s.size+1;
+    for(int i = 0; i < s.size; i++)
+    {
+        data[i] = s.data[i];
+        
+    }
+
+    data[end] = '\0';
+
+}
+
+
+String& String::operator=(const String& s)
+{
+    // s1 = s2;
+
+    if(this == &s)
+        return *this;
+
+    delete[] data;
+
+    capacity = s.capacity;
+    size = s.size;
+
+    data = new char[capacity];
+
+    for(int i = 0; i < s.size; i++)
+    {
+        data[i] = s.data[i];
+        
+    }
+    int end = s.size+1;
+    data[end] = '\0';
+
+    return *this;
+
+}
+
+String:: String(String&& s){
+    // String s1 = std::move(s2) OR String s1(s2)
+
+    data = s.data;
+    capacity = s.capacity;
+    size = s.size;
+
+    s.data = nullptr;
+    s.size = 0;
+    s.capacity = 0;
+
+
+
+
+}
+
+String& String:: operator=(String&& s ){
+
+    if(this == &s)
+    return *this;
+    // s1 = s2
+
+    delete [] data;
+
+
+    data = s.data;
+    capacity = s.capacity;
+    size = s.size;
+
+    s.data = nullptr;
+    s.size = 0;
+    s.capacity = 0;
+
+    return *this;
+
+    
+
+
+}
