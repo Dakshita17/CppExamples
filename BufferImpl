@@ -1,0 +1,107 @@
+// Buffer implementation with rule of 5
+#include<iostream>
+using namespace std;
+
+
+class Buffer{
+
+    private:
+    int* data;
+    size_t size;
+
+
+    public:
+    Buffer(size_t size);
+
+    ~Buffer();
+
+    Buffer(const Buffer& other);
+
+    Buffer& operator=(const Buffer& other);
+
+    Buffer(Buffer&& other);
+
+    Buffer& operator=(Buffer&& other);
+
+};
+
+
+Buffer::Buffer(size_t size):
+    data(new int[size]),
+    size(size){
+    
+}
+
+
+Buffer:: ~Buffer(){
+    delete[] data;
+    size = 0;
+
+}
+
+Buffer:: Buffer(const Buffer& other):
+    data(new int[other.size]),
+    size(other.size)
+{
+    for(int i = 0; i < size ; i++)
+    {
+        data[i] = other.data[i];
+    }
+
+}
+
+Buffer& Buffer:: operator=(const Buffer& other){
+    if(this == &other)
+        return *this;
+    
+    delete[] data;
+
+    data = new int[other.size];
+    size = other.size;
+
+    for(int i = 0; i < size ; i++)
+    {
+        data[i] = other.data[i];
+    }
+
+    return *this;
+    
+}
+
+Buffer:: Buffer(Buffer&& other):
+    data(other.data),
+    size(other.size){
+
+    other.data = nullptr;
+    other.size = 0;
+
+
+}
+
+Buffer& Buffer:: operator=(Buffer&& other){
+
+    if(this == &other)
+    {
+        return *this;
+    }
+
+    delete [] data;
+
+    data = other.data;
+    size = other.size;
+
+    other.data = nullptr;
+    other.size = 0;
+
+    return *this;
+
+}
+
+int main(){
+
+    Buffer b1(3);
+
+    Buffer b2 = b1;
+
+    Buffer b3(std::move(b2));
+}
