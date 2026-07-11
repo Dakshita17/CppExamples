@@ -1,0 +1,504 @@
+#include<iostream>
+#include<initializer_list>
+
+using namespace std;
+
+template<typename T>
+class Vector{
+
+    T* data;
+    int size;
+    int capacity;
+
+    public:
+
+    Vector();
+
+    ~Vector();
+
+    Vector(initializer_list<T> l)
+    {
+        size = l.size();
+        capacity = 2*size;
+        data = new T[capacity];
+
+        int index  = 0;
+        for(const T& elem: l)
+        {
+            data[index++] = elem;
+        }
+    }
+
+    Vector(const Vector<T>& other);
+
+    Vector& operator=(const Vector<T>& other);
+
+    Vector(Vector<T>&& other);
+
+    Vector& operator=(Vector<T>&& other);
+
+    T& operator[]( int index); // Why is T operator[](const Vector& v, int index); incorrect 
+
+    T& at(int index);
+
+    const T& front();
+
+    const T& back();
+
+    int size_();
+
+    int capacity_();
+
+    void reserve(int c);
+
+    void push_back(const T& ele);
+
+    void pop_back();
+
+    void clear();
+
+    void push_back(T&& ele); // not implemebted yet
+
+    bool empty();
+
+    T* begin();
+
+    T* end();
+
+    template<typename... Args>
+    void emplace_back(Args&&... args);
+
+    void resize(int new_size);
+
+
+};
+
+// template<typename T>
+// void Vector<T> :: resize(int new_size){
+
+//     if(new_size <= size)
+//     {
+//         size = new_size;
+//         for(int i = size; i < new_size; i++)
+//         {
+//             data[i].~T();
+//         }
+//         return;
+//     }
+   
+//         if(new_size > capacity)
+//         { 
+//             reserve(new_size);
+//         }
+
+//         for(int i = size; i < new_size; i++)
+//         {
+//             data[i] = new T();
+//         }
+//         size = new_size;
+
+
+// }
+
+
+// Memorize this:
+
+// template<typename T>
+// void f(T&& x)
+
+// is a forwarding reference.
+
+// lvalue argument ⇒ T deduced as U&
+// rvalue argument ⇒ T deduced as U
+
+// Then reference collapsing happens.
+template<typename T>
+template<typename... Args>
+void Vector<T> :: emplace_back(Args&&... args){
+  {
+        int new_capacity = (capacity == 0) ? 1 : 2 * capacity;
+
+        T* new_data = new T[new_capacity];
+
+        for(int i = 0; i < size; i++)
+        {
+            new_data[i] = std::move(data[i]);
+        }
+
+        delete[] data;
+
+        data = new_data;
+        capacity = new_capacity;
+    }
+
+    data[size] = T(std::forward<Args>(args)...);
+
+    size++;
+
+}
+
+
+template<typename T>
+ T* Vector<T> :: begin(){
+
+    return data;
+
+
+}
+
+
+template<typename T>
+ T* Vector<T> :: end(){
+
+    return data + size;
+
+}
+
+
+
+template<typename T>
+bool Vector<T> :: empty(){
+
+    if(size == 0)
+        return true;
+    else
+        return false;
+
+}
+
+
+
+
+template<typename T>
+void Vector<T>::push_back(T&& ele)
+{
+    if(capacity > size)
+    {
+        data[size] = std::move(ele);
+        size++;
+    }
+    else
+    {
+        auto new_data = new T[2 * capacity];
+
+        for(int i = 0; i < size; i++)
+        {
+            new_data[i] = std::move(data[i]);
+        }
+
+        new_data[size] = std::move(ele);
+
+        delete[] data;
+
+        data = new_data;
+        size++;
+        capacity = 2 * capacity;
+    }
+}
+
+
+
+template<typename T>
+void Vector<T>::clear()
+{
+    for(size_t i = 0; i < size; i++)
+    {
+        data[i].~T();
+    }
+
+    size = 0;
+}
+
+
+
+template<typename T>
+void Vector<T>::pop_back()
+{
+    if(size > 0)
+    {
+        size--;
+    }
+}
+
+
+
+
+
+template<typename T>
+void Vector<T>:: push_back(const T& ele){
+    if(capacity > size)
+    {
+        data[size] = ele;
+        size = size + 1;
+
+    }
+    else
+    {
+        auto new_data = new T[2*capacity];
+        for(int i = 0; i < size; i++)
+        {
+            new_data[i] = std::move(data[i]);
+        }
+        new_data[size] = ele;
+        delete[] data;
+        data = new_data;
+        size++;
+        capacity = 2*capacity;
+    }
+
+}
+
+
+template<typename T>
+void Vector<T>::reserve(int c){
+   if(c > capacity)
+   {
+        auto new_data = new T[c];
+
+        for(int i = 0; i < size ; i++)
+        {
+            new_data[i] = data[i];
+        }
+        delete[] data;
+        data = new_data;
+        capacity = c;
+
+   }
+    
+}
+
+template<typename T>
+int Vector<T>:: capacity_()
+{
+    return capacity;
+}
+
+template<typename T>
+int Vector<T>::size_()
+{
+    return size;
+}
+
+template<typename T>
+T& Vector<T>::operator[](int index){
+       return data[index];
+    
+    // throw std::out_of_range("index out of bounds");
+
+}
+
+template<typename T>
+T& Vector<T>::at(int index){
+    if(index >= 0 && index < size )
+    {
+        return data[index];
+    }
+    throw std:: out_of_range("index out of bounds");
+
+
+}
+
+
+template< typename T>
+const T& Vector<T> :: front(){
+    return data[0];
+    
+    
+
+}
+
+template< typename T>
+const T& Vector<T> :: back(){
+   return data[ size-1];
+        
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+template<typename T>
+Vector<T> :: Vector():
+data(nullptr),size(0),capacity(0)
+{
+}
+
+
+template<typename T>
+Vector<T> :: ~Vector(){
+    delete[] data;
+    size = 0;
+    capacity = 0;
+}
+
+template<typename T> 
+Vector<T> :: Vector(const Vector<T>& other){
+    size = other.size;
+    capacity = other.capacity;
+
+    data = new T[capacity];
+
+    for(int i = 0; i < size; i++)
+    {
+        data[i] = other.data[i];
+    }
+
+}
+
+template<typename T>
+Vector<T>& Vector<T>::operator=(const Vector<T>& other)
+{
+    if(this == &other)
+    {
+        return *this;
+    }
+
+    T* newdata = new T[other.capacity];
+
+    for(size_t i = 0; i < other.size; i++)
+    {
+        newdata[i] = other.data[i];
+    }
+
+    delete[] data;   // delete OLD memory
+
+    data = newdata;
+    size = other.size;
+    capacity = other.capacity;
+
+    return *this;
+}
+
+
+template<typename T>
+Vector<T> :: Vector(Vector<T>&& other)
+{
+
+    data = other.data;
+    size = other.size;
+    capacity = other.capacity ;
+
+    other.data = nullptr;
+    other.size = 0;
+    other.capacity = 0;
+
+}
+
+template<typename T>
+Vector<T>& Vector<T>::operator=(Vector<T>&& other)
+{
+    if(this == &other)
+    {
+        return *this;
+    }
+
+    delete[] data;
+
+    data = other.data;
+    size = other.size;
+    capacity = other.capacity;
+
+    other.data = nullptr;
+    other.size = 0;
+    other.capacity = 0;
+
+    return *this;
+}
+
+
+
+
+
+int main(){
+
+    Vector<int> v1; // basic constructor 
+
+    Vector<int> v2 = {1,2,3}; // construction uisnh initializer list 
+
+    Vector<int> v3 = v2; // copy constructor , deep copy (to prevent double delete ) contents of v2 to v3 
+
+    Vector<int> v4(v2); // copy contsructor 
+
+    v1 = v3; // copy assignment , there is a risk here that we're copying something to itself 
+
+    Vector<int> v5 = std:: move(v1);
+
+    v5 = std::move(v4);
+
+   
+    int p = v3[1];
+
+    v3[2] = 9;
+    
+    v3.at(1) = 7;
+    
+
+ 
+
+
+
+
+
+
+
+
+
+
+}
+
+/*
+ mental cheat sheet
+When writing methods:
+Read-only operation:
+
+Example:
+
+size()
+empty()
+capacity()
+begin()
+
+Usually:
+
+something() const;
+Returning modifiable access:
+
+Example:
+
+T& operator[](int);
+T& front();
+T& back();
+T* begin();
+
+No const.
+
+Returning read-only access:
+
+Add overload:
+
+const T& operator[](int) const;
+const T& front() const;
+const T* begin() const;
+
+A good rule:
+
+If the caller has a const object, every function they call must also be const.
+
+And:
+
+If you want the caller to modify the returned object, don't return const.
+*/
