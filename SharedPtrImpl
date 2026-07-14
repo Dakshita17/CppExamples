@@ -140,6 +140,4 @@ int main(){
 }
 
 
-
-
-
+// Redo: implementations and thread safety explaination
