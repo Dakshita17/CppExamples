@@ -1,0 +1,80 @@
+#include<iostream>
+#include<map>
+
+using namespace std;
+
+
+// Best bid (highest) and best ask (lowest) need to matched
+class OrderBook{
+    // price -> qty
+    map<int , int , greater<int>> bids;
+
+    // price -> qty
+    map<int, int> asks;
+
+
+    public:
+
+    void addBid(int price, int qty);
+
+    void addAsk(int price, int qty);
+
+    int getBestBid() const
+    {
+        if(!bids.empty())
+        {
+            return bids.begin()->first;
+        }
+        return -1;
+    }
+
+    int getBestAsk() const
+    {
+        if(!asks.empty())
+        {
+            return asks.begin()->first;
+
+        }
+        return -1;
+    }
+
+    void match();
+
+
+
+};
+
+void OrderBook :: addBid(int price, int qty){
+    
+    bids[price]+=qty;
+
+}
+
+void OrderBook :: addAsk(int price, int qty){
+    asks[price]+=qty;
+}
+
+void OrderBook :: match(){
+    while(!bids.empty() && !asks.empty() && bids.begin()->first > asks.begin()-> first)
+    {
+        int bidQty = bids.begin()->second;
+        int askQty = asks.begin()->second;
+        int tradeQty = min (bidQty, askQty);
+
+        bids.begin()->second -= tradeQty;
+        asks.begin()->second -= tradeQty;
+
+        if( bids.begin()->second == 0)
+        {
+            bids.erase(bids.begin());
+        }
+
+        if(asks.begin()->second == 0)
+        {
+            asks.erase(asks.begin());
+        }
+
+
+    }
+
+}
